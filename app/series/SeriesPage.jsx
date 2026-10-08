@@ -3,17 +3,18 @@ import { useSearchParams } from 'react-router-dom';
 import { MovieService } from '../../Services/Api.js';
 import MovieRow from '../../Components/MoviesRow/MovieRow.jsx';
 import MovieModal from '../../Components/MovieModal/MovieModal.jsx';
-import './MainPage.css';
+import '../MainPage/MainPage.css'
 
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
 const BACKDROP_BASE_URL = 'https://image.tmdb.org/t/p/original';
 
-function MainPage() {
-  const [heroMovie, setHeroMovie] = useState(null);
-  const [trending, setTrending] = useState([]);
-  const [actionMovies, setActionMovies] = useState([]);
-  const [series, setSeries] = useState([]);
-  const [anime, setAnime] = useState([]);
+function SeriesPage() {
+  const [heroSeries, setHeroSeries] = useState(null);
+  const [trendingSeries, setTrendingSeries] = useState([]);
+  const [actionSeries, setActionSeries] = useState([]);
+  const [suspenseSeries, setSuspenseSeries] = useState([]);
+  const [animeSeries, setAnimeSeries] = useState([]);
+  const [kdramas, setKdramas] = useState([]); 
   const [loading, setLoading] = useState(true);
 
   const [searchParams] = useSearchParams();
@@ -26,26 +27,28 @@ function MainPage() {
     const fetchCatalog = async () => {
       try {
         setLoading(true);
-        const [trendingData, actionData, tvData, animeData] = await Promise.all([
-          MovieService.getTrending('all', 'week'),
-          MovieService.discoverByGenre('movie', 28),
-          MovieService.getTvShowsByCategory('popular'),
-          MovieService.discoverByGenre('tv', 16),
+        const [trendingData, actionData, suspenseData, animeData, kdramadata] = await Promise.all([
+          MovieService.getTvShowsByCategory('popular'), 
+          MovieService.discoverByGenre('tv', 10759),    
+          MovieService.discoverByGenre('tv', 9648),     
+          MovieService.discoverByGenre('tv', 16),       
+          MovieService.getKdramas(),
         ]);
 
         const trendingResults = trendingData.results || [];
-        setTrending(trendingResults);
+        setTrendingSeries(trendingResults);
 
         if (trendingResults.length > 0) {
           const randomIndex = Math.floor(Math.random() * trendingResults.length);
-          setHeroMovie(trendingResults[randomIndex]);
+          setHeroSeries(trendingResults[randomIndex]);
         }
 
-        setActionMovies(actionData.results || []);
-        setSeries(tvData.results || []);
-        setAnime(animeData.results || []);
+        setActionSeries(actionData.results || []);
+        setSuspenseSeries(suspenseData.results || []);
+        setAnimeSeries(animeData.results || []);
+        setKdramas(kdramadata.results || []); 
       } catch (error) {
-        console.error('Error al cargar catálogo:', error.message);
+        console.error('Error al cargar catálogo de series:', error.message);
       } finally {
         setLoading(false);
       }
@@ -58,7 +61,7 @@ function MainPage() {
     const trimmedQuery = query.trim();
 
     if (!trimmedQuery) {
-      searchResults.length > 0 && setSearchResults([]);
+      setSearchResults([]);
       setIsSearching(false);
       return;
     }
@@ -69,11 +72,11 @@ function MainPage() {
       try {
         const response = await MovieService.searchMulti(trimmedQuery);
         const cleanResults = (response.results || []).filter(
-          (item) => item.poster_path && item.media_type !== 'person'
+          (item) => item.poster_path && item.media_type === 'tv'
         );
         setSearchResults(cleanResults);
       } catch (error) {
-        console.error('Error al buscar:', error.message);
+        console.error('Error al buscar series:', error.message);
         setSearchResults([]);
       } finally {
         setIsSearching(false);
@@ -85,7 +88,7 @@ function MainPage() {
   }, [query]);
 
   if (loading) {
-    return <div className="Loading">Cargando catálogo...</div>;
+    return <div className="Loading">Cargando series...</div>;
   }
 
   return (
@@ -93,59 +96,59 @@ function MainPage() {
       {query ? (
         <div className="Contenedor-Resultados-Busqueda">
           <h2 className="Titulo-Resultados">
-            Resultados para: <span>"{query}"</span>
+            Resultados de series para: <span>"{query}"</span>
           </h2>
 
           {isSearching ? (
             <div className="Loading">Buscando "{query}"...</div>
           ) : searchResults.length > 0 ? (
             <div className="Grid-Peliculas-Busqueda">
-              {searchResults.map((movie) => (
+              {searchResults.map((series) => (
                 <div 
-                  key={movie.id} 
+                  key={series.id} 
                   className="Tarjeta-Pelicula-Busqueda"
-                  onClick={() => setSelectedItem(movie)}
+                  onClick={() => setSelectedItem(series)}
                 >
                   <img
-                    src={`${IMAGE_BASE_URL}${movie.poster_path}`}
-                    alt={movie.title || movie.name}
+                    src={`${IMAGE_BASE_URL}${series.poster_path}`}
+                    alt={series.name || series.title}
                     className="Poster-Busqueda"
                   />
                   <p className="Titulo-Pelicula-Busqueda">
-                    {movie.title || movie.name}
+                    {series.name || series.title}
                   </p>
                 </div>
               ))}
             </div>
           ) : (
             <p className="Sin-Resultados">
-              No se encontraron resultados para "{query}"
+              No se encontraron series para "{query}"
             </p>
           )}
         </div>
       ) : (
         <>
-          {heroMovie && (
+          {heroSeries && (
             <div
               className="Contenedor-PeliculaPrincipal"
               style={{
-                backgroundImage: heroMovie.backdrop_path
+                backgroundImage: heroSeries.backdrop_path
                   ? `linear-gradient(to right, rgba(5, 4, 6, 0.95) 20%, rgba(5, 4, 6, 0.4) 60%, transparent 100%), 
                      linear-gradient(to top, #050406 5%, transparent 60%), 
-                     url(${BACKDROP_BASE_URL}${heroMovie.backdrop_path})`
+                     url(${BACKDROP_BASE_URL}${heroSeries.backdrop_path})`
                   : 'none',
                 backgroundSize: 'cover',
                 backgroundPosition: 'center top',
               }}
             >
               <div className="Hero-Info">
-                <h1 className="Hero-Title">{heroMovie.title || heroMovie.name}</h1>
-                <p className="Hero-Overview">{heroMovie.overview}</p>
+                <h1 className="Hero-Title">{heroSeries.name || heroSeries.title}</h1>
+                <p className="Hero-Overview">{heroSeries.overview}</p>
                 <div className="Hero-Buttons">
                   <button className="Hero-Btn Btn-Play">▶ Reproducir</button>
                   <button 
                     className="Hero-Btn Btn-Info"
-                    onClick={() => setSelectedItem(heroMovie)}
+                    onClick={() => setSelectedItem(heroSeries)}
                   >
                     ℹ Más información
                   </button>
@@ -154,10 +157,11 @@ function MainPage() {
             </div>
           )}
 
-          <MovieRow title="Tendencias" movies={trending} onItemClick={setSelectedItem} />
-          <MovieRow title="Acción" movies={actionMovies} onItemClick={setSelectedItem} />
-          <MovieRow title="Series Populares" movies={series} onItemClick={setSelectedItem} />
-          <MovieRow title="Animación" movies={anime} onItemClick={setSelectedItem} />
+        <MovieRow title="Series en Tendencia" movies={trendingSeries} onItemClick={setSelectedItem} />
+        <MovieRow title="Series de Acción" movies={actionSeries} onItemClick={setSelectedItem} />
+        <MovieRow title="Series de Suspenso y Misterio" movies={suspenseSeries} onItemClick={setSelectedItem} />
+        <MovieRow title="K-Dramas" movies={kdramas} onItemClick={setSelectedItem} />
+        <MovieRow title="Animes" movies={animeSeries} onItemClick={setSelectedItem} />
         </>
       )}
 
@@ -171,4 +175,4 @@ function MainPage() {
   );
 }
 
-export default MainPage;
+export default SeriesPage;

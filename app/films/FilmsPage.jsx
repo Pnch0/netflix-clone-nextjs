@@ -3,17 +3,19 @@ import { useSearchParams } from 'react-router-dom';
 import { MovieService } from '../../Services/Api.js';
 import MovieRow from '../../Components/MoviesRow/MovieRow.jsx';
 import MovieModal from '../../Components/MovieModal/MovieModal.jsx';
-import './MainPage.css';
+import '../MainPage/MainPage.css';
 
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
 const BACKDROP_BASE_URL = 'https://image.tmdb.org/t/p/original';
 
-function MainPage() {
+function MoviesPage() {
   const [heroMovie, setHeroMovie] = useState(null);
-  const [trending, setTrending] = useState([]);
+  const [trendingMovies, setTrendingMovies] = useState([]);
   const [actionMovies, setActionMovies] = useState([]);
-  const [series, setSeries] = useState([]);
-  const [anime, setAnime] = useState([]);
+  const [dramaMovies, setDramaMovies] = useState([]);
+  const [horrorMovies, setHorrorMovies] = useState([]);
+  const [romanceMovies, setRomanceMovies] = useState([]);
+  const [animationMovies, setAnimationMovies] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const [searchParams] = useSearchParams();
@@ -26,15 +28,24 @@ function MainPage() {
     const fetchCatalog = async () => {
       try {
         setLoading(true);
-        const [trendingData, actionData, tvData, animeData] = await Promise.all([
-          MovieService.getTrending('all', 'week'),
+        const [
+          trendingData, 
+          actionData, 
+          dramaData, 
+          horrorData, 
+          romanceData, 
+          animationData
+        ] = await Promise.all([
+          MovieService.getMoviesByCategory('popular'),
           MovieService.discoverByGenre('movie', 28),
-          MovieService.getTvShowsByCategory('popular'),
-          MovieService.discoverByGenre('tv', 16),
+          MovieService.discoverByGenre('movie', 18),
+          MovieService.discoverByGenre('movie', 27),
+          MovieService.discoverByGenre('movie', 10749),
+          MovieService.discoverByGenre('movie', 16),
         ]);
 
         const trendingResults = trendingData.results || [];
-        setTrending(trendingResults);
+        setTrendingMovies(trendingResults);
 
         if (trendingResults.length > 0) {
           const randomIndex = Math.floor(Math.random() * trendingResults.length);
@@ -42,10 +53,13 @@ function MainPage() {
         }
 
         setActionMovies(actionData.results || []);
-        setSeries(tvData.results || []);
-        setAnime(animeData.results || []);
+        setDramaMovies(dramaData.results || []);
+        setHorrorMovies(horrorData.results || []);
+        setRomanceMovies(romanceData.results || []);
+        setAnimationMovies(animationData.results || []);
+
       } catch (error) {
-        console.error('Error al cargar catálogo:', error.message);
+        console.error('Error al cargar catálogo de películas:', error.message);
       } finally {
         setLoading(false);
       }
@@ -58,7 +72,7 @@ function MainPage() {
     const trimmedQuery = query.trim();
 
     if (!trimmedQuery) {
-      searchResults.length > 0 && setSearchResults([]);
+      setSearchResults([]);
       setIsSearching(false);
       return;
     }
@@ -69,11 +83,11 @@ function MainPage() {
       try {
         const response = await MovieService.searchMulti(trimmedQuery);
         const cleanResults = (response.results || []).filter(
-          (item) => item.poster_path && item.media_type !== 'person'
+          (item) => item.poster_path && item.media_type === 'movie'
         );
         setSearchResults(cleanResults);
       } catch (error) {
-        console.error('Error al buscar:', error.message);
+        console.error('Error al buscar películas:', error.message);
         setSearchResults([]);
       } finally {
         setIsSearching(false);
@@ -85,7 +99,7 @@ function MainPage() {
   }, [query]);
 
   if (loading) {
-    return <div className="Loading">Cargando catálogo...</div>;
+    return <div className="Loading">Cargando películas...</div>;
   }
 
   return (
@@ -93,7 +107,7 @@ function MainPage() {
       {query ? (
         <div className="Contenedor-Resultados-Busqueda">
           <h2 className="Titulo-Resultados">
-            Resultados para: <span>"{query}"</span>
+            Resultados de películas para: <span>"{query}"</span>
           </h2>
 
           {isSearching ? (
@@ -119,7 +133,7 @@ function MainPage() {
             </div>
           ) : (
             <p className="Sin-Resultados">
-              No se encontraron resultados para "{query}"
+              No se encontraron películas para "{query}"
             </p>
           )}
         </div>
@@ -154,10 +168,12 @@ function MainPage() {
             </div>
           )}
 
-          <MovieRow title="Tendencias" movies={trending} onItemClick={setSelectedItem} />
-          <MovieRow title="Acción" movies={actionMovies} onItemClick={setSelectedItem} />
-          <MovieRow title="Series Populares" movies={series} onItemClick={setSelectedItem} />
-          <MovieRow title="Animación" movies={anime} onItemClick={setSelectedItem} />
+          <MovieRow title="Tendencias" movies={trendingMovies} onItemClick={setSelectedItem} />
+          <MovieRow title="Acción y Aventura" movies={actionMovies} onItemClick={setSelectedItem} />
+          <MovieRow title="Drama" movies={dramaMovies} onItemClick={setSelectedItem} />
+          <MovieRow title="Terror y Suspenso" movies={horrorMovies} onItemClick={setSelectedItem} />
+          <MovieRow title="Romance" movies={romanceMovies} onItemClick={setSelectedItem} />
+          <MovieRow title="Animación" movies={animationMovies} onItemClick={setSelectedItem} />
         </>
       )}
 
@@ -171,4 +187,4 @@ function MainPage() {
   );
 }
 
-export default MainPage;
+export default MoviesPage;
