@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 import { AuthService } from '@/Services/Api.js';
 import { toast } from 'sonner';
 
+import { PublicRoute } from '@/Components/Auth/PublicRoute';
+
 function LoginPage(){
     const [correo, setCorreo] = useState('');
     const [contraseña, setContraseña] = useState('');
@@ -44,8 +46,8 @@ function LoginPage(){
         } catch (error) {
             console.error("Error al iniciar sesión:", error);
 
-            toast.error('Error al iniciar sesión', {
-                description: error.response?.data?.message || error.message || 'Credenciales incorrectas.',
+            toast.error('Credenciales incorrectas', {
+                description: 'El correo o la contraseña son incorrectos. ¡Inténtelo de nuevo!',
             });
 
         } finally {
@@ -54,49 +56,48 @@ function LoginPage(){
     };
 
     return(
-        <>
-        <div className="Contenedor-Centrado">
-            <div className="Contenedor-LoginPage">
-                <div className="ContenedorBotones-Login">
-                    <Link href="/login" className="Boton-Login">
-                        Login
-                    </Link>
-                    <Link href="/register" className="Boton-Register">
-                        Register
-                    </Link>
-                </div>
-                <div className="ContenedorFormulario-Login">
-                    <form onSubmit={handleSubmit}>
-                        <label htmlFor="Email">Correo: </label>
-                        <input 
-                            type="email" 
-                            id='Email'
-                            value={correo}
-                            onChange={(e) => setCorreo(e.target.value)}
-                            placeholder='ejemplocorreo@gmail.com'
-                            required
-                        />
+        <PublicRoute>
+            <div className="Contenedor-Centrado">
+                <div className="Contenedor-LoginPage">
+                    <div className="ContenedorBotones-Login">
+                        <Link href="/login" className="Boton-Login active">
+                            Login
+                        </Link>
+                        <Link href="/register" className="Boton-Register">
+                            Register
+                        </Link>
+                    </div>
+                    <div className="ContenedorFormulario-Login">
+                        <form onSubmit={handleSubmit}>
+                            <label htmlFor="Email">Correo: </label>
+                            <input 
+                                type="email" 
+                                id='Email'
+                                value={correo}
+                                onChange={(e) => setCorreo(e.target.value)}
+                                placeholder='ejemplocorreo@gmail.com'
+                                required
+                            />
 
 
-                        <label htmlFor="Contraseña">Contraseña: </label>
-                        <input 
-                            type="password" 
-                            id='Contraseña'
-                            value={contraseña}
-                            onChange={(e)=> setContraseña(e.target.value)}
-                            placeholder='*************'
-                            required
-                        />
+                            <label htmlFor="Contraseña">Contraseña: </label>
+                            <input 
+                                type="password" 
+                                id='Contraseña'
+                                value={contraseña}
+                                onChange={(e)=> setContraseña(e.target.value)}
+                                placeholder='*************'
+                                required
+                            />
 
-                        <button type='submit' className="BotonSubmit-Login" disabled={cargando}>
-                            {cargando ? 'Iniciando sesión...' : 'Iniciar Sesión'}
-                        </button>
-                    </form>
+                            <button type='submit' className="BotonSubmit-Login" disabled={cargando}>
+                                {cargando ? 'Iniciando sesión...' : 'Iniciar Sesión'}
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
-        </div>
-        
-        </>
+        </PublicRoute>
     )
 }
 

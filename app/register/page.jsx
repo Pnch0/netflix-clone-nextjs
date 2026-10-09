@@ -7,6 +7,8 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
 
+import { PublicRoute } from '@/Components/Auth/PublicRoute';
+
 function RegisterPage(){
 
     const router = useRouter();
@@ -62,81 +64,81 @@ function RegisterPage(){
     };
 
     return(
-        <>
-        <div className="Contenedor-Centrado">
-            <div className="Contenedor-Register">
-                <div className="ContenedorBotones-Register">
-                    <Link href="/login" className="Boton-Login">
-                        Login
-                    </Link>
-                    <Link href="/register" className="Boton-Register">
-                        Register
-                    </Link>
-                </div>
-                <div className="ContenedorFormulario-Register">
-                    <form onSubmit={handleSubmit}>
-                        <div className="Linea-Doble">
-                            <div className="Campo-Formulario">
-                                <label htmlFor="Nombre">Nombre:</label>
-                                <input 
-                                    type="text" 
-                                    id="Nombre" 
-                                    name='nombre'
-                                    value={formData.nombre}
-                                    onChange={handleChange}
-                                    placeholder="Juan" 
-                                    required 
-                                />
+        <PublicRoute>
+            <div className="Contenedor-Centrado">
+                <div className="Contenedor-Register">
+                    <div className="ContenedorBotones-Register">
+                        <Link href="/login" className="Boton-Login">
+                            Login
+                        </Link>
+                        <Link href="/register" className="Boton-Register active">
+                            Register
+                        </Link>
+                    </div>
+                    <div className="ContenedorFormulario-Register">
+                        <form onSubmit={handleSubmit}>
+                            <div className="Linea-Doble">
+                                <div className="Campo-Formulario">
+                                    <label htmlFor="Nombre">Nombre:</label>
+                                    <input 
+                                        type="text" 
+                                        id="Nombre" 
+                                        name='nombre'
+                                        value={formData.nombre}
+                                        onChange={handleChange}
+                                        placeholder="Juan" 
+                                        required 
+                                    />
+                                </div>
+                                <div className="Campo-Formulario">
+                                    <label htmlFor="Apellido">Apellido:</label>
+                                    <input 
+                                        type="text" 
+                                        id="Apellido" 
+                                        name='apellido'
+                                        value={formData.apellido}
+                                        onChange={handleChange}
+                                        placeholder="Perez" 
+                                        required 
+                                    />
+                                </div>
                             </div>
-                            <div className="Campo-Formulario">
-                                <label htmlFor="Apellido">Apellido:</label>
-                                <input 
-                                    type="text" 
-                                    id="Apellido" 
-                                    name='apellido'
-                                    value={formData.apellido}
-                                    onChange={handleChange}
-                                    placeholder="Perez" 
-                                    required 
-                                />
-                            </div>
-                        </div>
 
-                        <label htmlFor="Email">Correo: </label>
-                        <input 
-                            type="email" 
-                            id='Email'
-                            name='correo'
-                            value={formData.correo}
-                            onChange={handleChange}
-                            placeholder='ejemplocorreo@gmail.com'
-                            required
-                        />
+                            <label htmlFor="Email">Correo: </label>
+                            <input 
+                                type="email" 
+                                id='Email'
+                                name='correo'
+                                value={formData.correo}
+                                onChange={handleChange}
+                                placeholder='ejemplocorreo@gmail.com'
+                                required
+                            />
 
-                        <label htmlFor="Password">Contraseña: </label>
-                        <input 
-                            type="password" 
-                            id='Password'
-                            name='contraseña'
-                            value={formData.contraseña}
-                            onChange={handleChange}
-                            placeholder='*************'
-                            minLength={6}
-                            required
-                        />
+                            <label htmlFor="Password">Contraseña: </label>
+                            <input 
+                                type="password" 
+                                id='Password'
+                                name='contraseña'
+                                value={formData.contraseña}
+                                onChange={handleChange}
+                                placeholder='*************'
+                                minLength={6}
+                                required
+                            />
 
-                        <button
-                            type="submit"
-                            className="BotonSubmit-Register"
-                            disabled={loading}
-                        >
-                            {loading ? 'Registrando...' : 'Crear Cuenta'}
-                        </button>
-                    </form>
+                            <button
+                                type="submit"
+                                className="BotonSubmit-Register"
+                                disabled={loading}
+                            >
+                                {loading ? 'Registrando...' : 'Crear Cuenta'}
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
-        </div>
-        </>
+        </PublicRoute>
     )
 }
 

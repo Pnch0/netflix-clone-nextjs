@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { MdMovie } from "react-icons/md";
 import { FaSearch, FaBars, FaTimes } from "react-icons/fa";
+import { toast } from 'sonner';
 
 function Navbar(){
     const router = useRouter();
@@ -30,6 +31,10 @@ function Navbar(){
 
     const handleLogout = () => {
         localStorage.removeItem('token');
+        localStorage.removeItem('usuario');
+        toast.success('Sesión cerrada correctamente', {
+            description: '¡Hasta la próxima!',
+        });
         router.push('/login');
     };
 
