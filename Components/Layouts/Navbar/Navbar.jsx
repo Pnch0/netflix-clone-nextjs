@@ -1,12 +1,15 @@
+"use client";
 import React, { useState, useEffect } from "react";
 import './Navbar.css';
-import { NavLink, useNavigate, useSearchParams } from 'react-router-dom';
+import Link from 'next/link';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { MdMovie } from "react-icons/md";
 import { FaSearch, FaBars, FaTimes } from "react-icons/fa";
 
 function Navbar(){
-    const navigate = useNavigate();
-    const [searchParams] = useSearchParams();
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
     const [inputValue, setInputValue] = useState(searchParams.get('q') || '');
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -19,15 +22,15 @@ function Navbar(){
         setInputValue(valor);
 
         if (valor.trim().length > 0) {
-            navigate(`/main-page?q=${encodeURIComponent(valor)}`);
+            router.push(`/?q=${encodeURIComponent(valor)}`);
         } else {
-            navigate('/main-page');
+            router.push('/');
         }
     };
 
     const handleLogout = () => {
         localStorage.removeItem('token');
-        navigate('/', { replace: true });
+        router.push('/login');
     };
 
     const toggleMobileMenu = () => {
@@ -53,19 +56,19 @@ function Navbar(){
                 <div className={`ContenedorNavbarIzquierda-Derecha ${isMobileMenuOpen ? 'active' : ''}`}>
                     <ul>
                         <li>
-                            <NavLink to="/main-page" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"} onClick={closeMobileMenu}>
+                            <Link href="/" className={pathname === '/' ? "nav-item active" : "nav-item"} onClick={closeMobileMenu}>
                                 Home
-                            </NavLink>
+                            </Link>
                         </li>
                         <li>
-                            <NavLink to="/series-page" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"} onClick={closeMobileMenu}>
+                            <Link href="/series" className={pathname === '/series' ? "nav-item active" : "nav-item"} onClick={closeMobileMenu}>
                                 Series
-                            </NavLink>
+                            </Link>
                         </li>
                         <li>
-                            <NavLink to="/films-page" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"} onClick={closeMobileMenu}>
+                            <Link href="/films" className={pathname === '/films' ? "nav-item active" : "nav-item"} onClick={closeMobileMenu}>
                                 Peliculas
-                            </NavLink>
+                            </Link>
                         </li>
                     </ul>
                 </div>

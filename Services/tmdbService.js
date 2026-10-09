@@ -1,7 +1,5 @@
 import axios from 'axios';
-import dotenv from 'dotenv';
 
-dotenv.config();
 
 const BASE_URL = process.env.TMDB_BASE_URL || 'https://api.themoviedb.org/3';
 const API_KEY = process.env.TMDB_API_KEY;
@@ -71,5 +69,13 @@ export const tmdbService = {
     });
     return data;
   },
+
+  getKdramas: async (page = 1) => {
+    const { data } = await tmdbClient.get('/discover/tv', {
+      params: { with_original_language: 'ko', page },
+    });
+    return data;
+  }
 };
+
 

@@ -1,13 +1,15 @@
+"use client";
 import { useState, useEffect } from 'react';
-import { UserService } from '../../Services/Api';
+import { UserService } from '@/Services/Api.js';
 import './Register.css';
-import { NavLink, useNavigate } from 'react-router-dom';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
 
 function RegisterPage(){
 
-    const navigate = useNavigate();
+    const router = useRouter();
 
     const [formData, setFormData] = useState({
         nombre: '',
@@ -44,7 +46,7 @@ function RegisterPage(){
         setFormData({ nombre: '', apellido: '', correo: '', contraseña: '' });
 
         setTimeout(() => {
-            navigate('/main-page');
+            router.push('/');
         }, 2000);
 
         } catch (err) {
@@ -64,12 +66,12 @@ function RegisterPage(){
         <div className="Contenedor-Centrado">
             <div className="Contenedor-Register">
                 <div className="ContenedorBotones-Register">
-                    <NavLink to="/" className="Boton-Login">
+                    <Link href="/login" className="Boton-Login">
                         Login
-                    </NavLink>
-                    <NavLink to="/register-page" className="Boton-Register">
+                    </Link>
+                    <Link href="/register" className="Boton-Register">
                         Register
-                    </NavLink>
+                    </Link>
                 </div>
                 <div className="ContenedorFormulario-Register">
                     <form onSubmit={handleSubmit}>

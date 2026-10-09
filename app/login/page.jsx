@@ -1,7 +1,9 @@
+"use client";
 import './Login.css';
 import { useState, useEffect } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
-import { AuthService } from '../../Services/Api.js';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { AuthService } from '@/Services/Api.js';
 import { toast } from 'sonner';
 
 function LoginPage(){
@@ -10,7 +12,7 @@ function LoginPage(){
     const [verPassword, setVerPassword] = useState(false);
     const [cargando, setCargando] = useState(false);
 
-    const navigate = useNavigate();
+    const router = useRouter();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -36,7 +38,7 @@ function LoginPage(){
             });
 
             setTimeout(() => {
-                navigate('/main-page');
+                router.push('/');
             }, 1500);
 
         } catch (error) {
@@ -56,12 +58,12 @@ function LoginPage(){
         <div className="Contenedor-Centrado">
             <div className="Contenedor-LoginPage">
                 <div className="ContenedorBotones-Login">
-                    <NavLink to="/" className="Boton-Login">
+                    <Link href="/login" className="Boton-Login">
                         Login
-                    </NavLink>
-                    <NavLink to="/register-page" className="Boton-Register">
+                    </Link>
+                    <Link href="/register" className="Boton-Register">
                         Register
-                    </NavLink>
+                    </Link>
                 </div>
                 <div className="ContenedorFormulario-Login">
                     <form onSubmit={handleSubmit}>

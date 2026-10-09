@@ -1,23 +1,23 @@
+"use client";
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { MovieService } from '../../Services/Api.js';
-import MovieRow from '../../Components/MoviesRow/MovieRow.jsx';
-import MovieModal from '../../Components/MovieModal/MovieModal.jsx';
-import '../MainPage/MainPage.css'
+import { useSearchParams } from 'next/navigation';
+import { MovieService } from '@/Services/Api.js';
+import MovieRow from '@/Components/MoviesRow/MoviesRow.jsx';
+import MovieModal from '@/Components/MovieModal/MovieModal.jsx';
+import './MainPage.css';
 
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
 const BACKDROP_BASE_URL = 'https://image.tmdb.org/t/p/original';
 
-function SeriesPage() {
-  const [heroSeries, setHeroSeries] = useState(null);
-  const [trendingSeries, setTrendingSeries] = useState([]);
-  const [actionSeries, setActionSeries] = useState([]);
-  const [suspenseSeries, setSuspenseSeries] = useState([]);
-  const [animeSeries, setAnimeSeries] = useState([]);
-  const [kdramas, setKdramas] = useState([]); 
+function MainPage() {
+  const [heroMovie, setHeroMovie] = useState(null);
+  const [trending, setTrending] = useState([]);
+  const [actionMovies, setActionMovies] = useState([]);
+  const [series, setSeries] = useState([]);
+  const [anime, setAnime] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const [searchParams] = useSearchParams();
+  const searchParams = useSearchParams();
   const query = searchParams.get('q') || '';
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -27,28 +27,26 @@ function SeriesPage() {
     const fetchCatalog = async () => {
       try {
         setLoading(true);
-        const [trendingData, actionData, suspenseData, animeData, kdramadata] = await Promise.all([
-          MovieService.getTvShowsByCategory('popular'), 
-          MovieService.discoverByGenre('tv', 10759),    
-          MovieService.discoverByGenre('tv', 9648),     
-          MovieService.discoverByGenre('tv', 16),       
-          MovieService.getKdramas(),
+        const [trendingData, actionData, tvData, animeData] = await Promise.all([
+          MovieService.getTrending('all', 'week'),
+          MovieService.discoverByGenre('movie', 28),
+          MovieService.getTvShowsByCategory('popular'),
+          MovieService.discoverByGenre('tv', 16),
         ]);
 
         const trendingResults = trendingData.results || [];
-        setTrendingSeries(trendingResults);
+        setTrending(trendingResults);
 
         if (trendingResults.length > 0) {
           const randomIndex = Math.floor(Math.random() * trendingResults.length);
-          setHeroSeries(trendingResults[randomIndex]);
+          setHeroMovie(trendingResults[randomIndex]);
         }
 
-        setActionSeries(actionData.results || []);
-        setSuspenseSeries(suspenseData.results || []);
-        setAnimeSeries(animeData.results || []);
-        setKdramas(kdramadata.results || []); 
+        setActionMovies(actionData.results || []);
+        setSeries(tvData.results || []);
+        setAnime(animeData.results || []);
       } catch (error) {
-        console.error('Error al cargar catálogo de series:', error.message);
+        console.error('Error al cargar catálogo:', error.message);
       } finally {
         setLoading(false);
       }
@@ -61,7 +59,7 @@ function SeriesPage() {
     const trimmedQuery = query.trim();
 
     if (!trimmedQuery) {
-      setSearchResults([]);
+      searchResults.length > 0 && setSearchResults([]);
       setIsSearching(false);
       return;
     }
@@ -72,11 +70,11 @@ function SeriesPage() {
       try {
         const response = await MovieService.searchMulti(trimmedQuery);
         const cleanResults = (response.results || []).filter(
-          (item) => item.poster_path && item.media_type === 'tv'
+          (item) => item.poster_path && item.media_type !== 'person'
         );
         setSearchResults(cleanResults);
       } catch (error) {
-        console.error('Error al buscar series:', error.message);
+        console.error('Error al buscar:', error.message);
         setSearchResults([]);
       } finally {
         setIsSearching(false);
@@ -88,7 +86,7 @@ function SeriesPage() {
   }, [query]);
 
   if (loading) {
-    return <div className="Loading">Cargando series...</div>;
+    return <div className="Loading">Cargando catálogo...</div>;
   }
 
   return (
@@ -96,59 +94,59 @@ function SeriesPage() {
       {query ? (
         <div className="Contenedor-Resultados-Busqueda">
           <h2 className="Titulo-Resultados">
-            Resultados de series para: <span>"{query}"</span>
+            Resultados para: <span>"{query}"</span>
           </h2>
 
           {isSearching ? (
             <div className="Loading">Buscando "{query}"...</div>
           ) : searchResults.length > 0 ? (
             <div className="Grid-Peliculas-Busqueda">
-              {searchResults.map((series) => (
+              {searchResults.map((movie) => (
                 <div 
-                  key={series.id} 
+                  key={movie.id} 
                   className="Tarjeta-Pelicula-Busqueda"
-                  onClick={() => setSelectedItem(series)}
+                  onClick={() => setSelectedItem(movie)}
                 >
                   <img
-                    src={`${IMAGE_BASE_URL}${series.poster_path}`}
-                    alt={series.name || series.title}
+                    src={`${IMAGE_BASE_URL}${movie.poster_path}`}
+                    alt={movie.title || movie.name}
                     className="Poster-Busqueda"
                   />
                   <p className="Titulo-Pelicula-Busqueda">
-                    {series.name || series.title}
+                    {movie.title || movie.name}
                   </p>
                 </div>
               ))}
             </div>
           ) : (
             <p className="Sin-Resultados">
-              No se encontraron series para "{query}"
+              No se encontraron resultados para "{query}"
             </p>
           )}
         </div>
       ) : (
         <>
-          {heroSeries && (
+          {heroMovie && (
             <div
               className="Contenedor-PeliculaPrincipal"
               style={{
-                backgroundImage: heroSeries.backdrop_path
+                backgroundImage: heroMovie.backdrop_path
                   ? `linear-gradient(to right, rgba(5, 4, 6, 0.95) 20%, rgba(5, 4, 6, 0.4) 60%, transparent 100%), 
                      linear-gradient(to top, #050406 5%, transparent 60%), 
-                     url(${BACKDROP_BASE_URL}${heroSeries.backdrop_path})`
+                     url(${BACKDROP_BASE_URL}${heroMovie.backdrop_path})`
                   : 'none',
                 backgroundSize: 'cover',
                 backgroundPosition: 'center top',
               }}
             >
               <div className="Hero-Info">
-                <h1 className="Hero-Title">{heroSeries.name || heroSeries.title}</h1>
-                <p className="Hero-Overview">{heroSeries.overview}</p>
+                <h1 className="Hero-Title">{heroMovie.title || heroMovie.name}</h1>
+                <p className="Hero-Overview">{heroMovie.overview}</p>
                 <div className="Hero-Buttons">
                   <button className="Hero-Btn Btn-Play">▶ Reproducir</button>
                   <button 
                     className="Hero-Btn Btn-Info"
-                    onClick={() => setSelectedItem(heroSeries)}
+                    onClick={() => setSelectedItem(heroMovie)}
                   >
                     ℹ Más información
                   </button>
@@ -157,11 +155,10 @@ function SeriesPage() {
             </div>
           )}
 
-        <MovieRow title="Series en Tendencia" movies={trendingSeries} onItemClick={setSelectedItem} />
-        <MovieRow title="Series de Acción" movies={actionSeries} onItemClick={setSelectedItem} />
-        <MovieRow title="Series de Suspenso y Misterio" movies={suspenseSeries} onItemClick={setSelectedItem} />
-        <MovieRow title="K-Dramas" movies={kdramas} onItemClick={setSelectedItem} />
-        <MovieRow title="Animes" movies={animeSeries} onItemClick={setSelectedItem} />
+          <MovieRow title="Tendencias" movies={trending} onItemClick={setSelectedItem} />
+          <MovieRow title="Acción" movies={actionMovies} onItemClick={setSelectedItem} />
+          <MovieRow title="Series Populares" movies={series} onItemClick={setSelectedItem} />
+          <MovieRow title="Animación" movies={anime} onItemClick={setSelectedItem} />
         </>
       )}
 
@@ -175,4 +172,6 @@ function SeriesPage() {
   );
 }
 
-export default SeriesPage;
+export default MainPage;
+
+

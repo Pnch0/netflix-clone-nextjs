@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import './MovieRow.css';
+import './MoviesRow.css';
 
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
 
@@ -63,3 +63,4 @@ function MovieRow({ title, movies, onItemClick }) {
 }
 
 export default MovieRow;
+

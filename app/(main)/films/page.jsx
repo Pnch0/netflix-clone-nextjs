@@ -1,9 +1,10 @@
+"use client";
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { MovieService } from '../../Services/Api.js';
-import MovieRow from '../../Components/MoviesRow/MovieRow.jsx';
-import MovieModal from '../../Components/MovieModal/MovieModal.jsx';
-import '../MainPage/MainPage.css';
+import { useSearchParams } from 'next/navigation';
+import { MovieService } from '@/Services/Api.js';
+import MovieRow from '@/Components/MoviesRow/MoviesRow.jsx';
+import MovieModal from '@/Components/MovieModal/MovieModal.jsx';
+import '../MainPage.css';
 
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
 const BACKDROP_BASE_URL = 'https://image.tmdb.org/t/p/original';
@@ -18,7 +19,7 @@ function MoviesPage() {
   const [animationMovies, setAnimationMovies] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const [searchParams] = useSearchParams();
+  const searchParams = useSearchParams();
   const query = searchParams.get('q') || '';
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -188,3 +189,5 @@ function MoviesPage() {
 }
 
 export default MoviesPage;
+
+

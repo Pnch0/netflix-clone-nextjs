@@ -1,13 +1,12 @@
 import {createClient} from '@supabase/supabase-js';
-import dotenv from 'dotenv';
 
-dotenv.config();
 
-const supabaseUrl = process.env.SUPABASE_URL
-const anonKey = process.env.SUPABASE_KEY
-const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/"/g, '').trim()
+const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.replace(/"/g, '').trim()
+const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.replace(/"/g, '').trim()
 
-export const supabase = createClient(supabaseUrl, anonKey);
+console.log('SUPABASE URL IS: ', supabaseUrl);
+export const supabase = createClient(supabaseUrl, anonKey, { auth: { persistSession: false }, global: { fetch: fetch } });
 
 export const supabaseAdmin = createClient(supabaseUrl, serviceKey, {
     auth:{
@@ -15,4 +14,8 @@ export const supabaseAdmin = createClient(supabaseUrl, serviceKey, {
         persistSession: false
     }
 });
+
+
+
+
 
